@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using MyLib;
 using MyLib.Models;
 
 namespace ReflectionApp
@@ -15,7 +16,7 @@ namespace ReflectionApp
         public static void Main(string[] args)
         {
             // ShowMethodCallResultWithReflection();
-            
+
             // string url = "/Customer/List?limit=2";
             // ProcessUrl(url);
 
@@ -28,8 +29,9 @@ namespace ReflectionApp
 
 
             // ProcessCustomerWithLibInReferences();
-            
-            
+
+
+            // CustomerAttributes();
         }
 
         protected static void ShowMethodCallResultWithReflection()
@@ -160,6 +162,27 @@ namespace ReflectionApp
 
             Console.WriteLine(nameProperty.GetValue(customerInstance));
             return customerInstance;
+        }
+
+        protected static void CustomerAttributes()
+        {
+            string modelName = "Customer";
+
+            Assembly assembly = Assembly.LoadFile(_path);
+            string classFullname = $"MyLib.Models.{modelName}";
+            Type classType = assembly.GetType(classFullname);
+            if (classType == null)
+            {
+                Console.WriteLine("404");
+                return;
+            }
+
+            IList<CustomAttributeData> attributes = classType!.GetCustomAttributesData();
+            foreach (CustomAttributeData attribute in attributes)
+            {
+                Console.WriteLine(
+                    $"{attribute.AttributeType}: {string.Join(", ", attribute.ConstructorArguments.Select(x => $"{x.Value} - {x.ArgumentType}"))}");
+            }
         }
     }
 }
